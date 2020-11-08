@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios'
 import Person from './components/Person'
-import Filter from './components/Filter'
 
 const App = () => {
 
@@ -15,11 +14,9 @@ const App = () => {
     axios
       .get('http://localhost:3001/persons')
       .then(response => {
-        console.log('promise fulfilled')
         setPersons(response.data)
       })
   }, [])
-  console.log('render', persons.length, 'persons')
 
   const addNewPerson = (event) => {
     event.preventDefault()
@@ -54,7 +51,7 @@ const App = () => {
     setShowAll(!showAll)
   }
 
-  const namesToShow = persons.map(person => person.name).filter(name => name.toLowerCase().includes(filter.toLowerCase()))
+  const namesToShow = persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()))
   
   return (
     <div>
@@ -70,10 +67,7 @@ const App = () => {
       </form>
 
       <h2>Numbers</h2>
-      <ul>{persons.map(person => <Person key={person.id} name={person.name} number={person.number} />)}</ul>
-
-      <h2>Filtered</h2>
-      <ul>{namesToShow.map(name => <Filter key={name} name={name} />)}</ul>
+      <ul>{namesToShow.map(person => <Person key={person.id} name={person.name} number={person.number} />)}</ul>
     </div>
   )
 }
