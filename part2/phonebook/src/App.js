@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'
 import Person from './components/Person'
+import personService from './services/persons'
 
 const App = () => {
 
@@ -8,11 +8,10 @@ const App = () => {
   const [ newName, setNewName ] = useState('')  
   const [ newNumber, setNewNumber ] = useState('')
   const [ filter, setFilter ] = useState('')
-  const [ showAll, setShowAll ] = useState(true)
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
+    personService
+      .getAll()
       .then(response => {
         setPersons(response.data)
       })
@@ -29,13 +28,37 @@ const App = () => {
     const isPresent = persons.some(person => person.name.includes(newName));
     
     if (isPresent) {
-      alert(`${newName} is already added to phonebook`);
+      const person = persons.find(person => person.name === newName)
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        const id = person.id
+        personService
+          .update(id, { ...person, number: newNumber })
+          .then(response => {
+            setPersons(persons.map(person => person.id !== id ? person : response.data))
+          })
+      }
     } else {
-      setPersons(prevPersons => prevPersons.concat(personObject));
+      personService
+        .create(personObject)
+        .then(response => {
+          setPersons(persons.concat(response.data))
+        })
     }
     
     setNewName('')
     setNewNumber('')
+  }
+
+  const deletePerson = (id, name) => {
+    return() => {
+      if (window.confirm(`Delete ${name}?`)) {
+        personService
+          .deleteObject(id)
+          .then(response => {
+            setPersons(persons.filter(person => person.id !== response.data))
+          })
+      }
+    }
   }
 
   const handleNameChange = (event) => {
@@ -48,7 +71,6 @@ const App = () => {
 
   const handleFilterChange = (event) => {
     setFilter(event.target.value)
-    setShowAll(!showAll)
   }
 
   const namesToShow = persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()))
@@ -67,7 +89,7 @@ const App = () => {
       </form>
 
       <h2>Numbers</h2>
-      <ul>{namesToShow.map(person => <Person key={person.id} name={person.name} number={person.number} />)}</ul>
+      <ul>{namesToShow.map(person => <Person key={person.id} name={person.name} number={person.number} deletePerson={deletePerson(person.id, person.name)}/>)}</ul>
     </div>
   )
 }
