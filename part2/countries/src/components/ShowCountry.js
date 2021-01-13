@@ -16,6 +16,7 @@ const ShowCountry = (props) => {
 
   return (
     <div>
+      {props.name}
       <button onClick={onClick}>show</button>
       { showInformation ? <Information /> : null}
     </div>

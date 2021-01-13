@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react'
-// import Country from './components/Country'
-// import Weather from './components/Weather'
 import ShowCountry from './components/ShowCountry'
 import axios from 'axios'
 
@@ -26,21 +24,21 @@ const App = () => {
   }
 
   const countriesToShow = countries.filter(c => c.name.toLowerCase().includes(country.toLowerCase()))
+  // const countriesToShowList = countriesToShow.map(country => country.name)
   console.log(countriesToShow)
   console.log(countriesToShow.length)
+
+  const tooManyCountries = countriesToShow.length > 10
+  const multipleCountries = countriesToShow.length <= 10
+  // const oneCountry = countriesToShow.length === 1
   
   return (
     <div>
       <form onSubmit={searchCountry}>
         <div>find countries <input value={country} onChange={handleSetCountry} /></div>
       </form>
-      <ul>{countriesToShow.length <= 10 ? 
-        countriesToShow.map(c => {
-          return (
-            <li>{c.name} <ShowCountry name={c.name} capital={c.capital} population={c.population} languages={c.languages} flag={c.flag} /></li>
-          )
-        }) : 
-        <p>Too many matches, specify another filter</p>}</ul>
+      {tooManyCountries ? <p>Too many matches, specify another filter or enter a query</p> : ''} 
+      {multipleCountries ? countriesToShow.map(c => <ShowCountry name={c.name} capital={c.capital} population={c.population} languages={c.languages} flag={c.flag} />) : ''}
     </div>
   );
 }
