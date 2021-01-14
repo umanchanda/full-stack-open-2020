@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Person from './components/Person'
+import ErrorMessage from './components/ErrorMessage'
+import SuccessMessage from './components/SuccessMessage'
 import personService from './services/persons'
 
 const App = () => {
@@ -8,6 +10,8 @@ const App = () => {
   const [ newName, setNewName ] = useState('')  
   const [ newNumber, setNewNumber ] = useState('')
   const [ filter, setFilter ] = useState('')
+  const [ message, setMessage ] = useState('')
+  const [ errorMessage, setErrorMessage ] = useState('')
 
   useEffect(() => {
     personService
@@ -35,6 +39,10 @@ const App = () => {
           .update(id, { ...person, number: newNumber })
           .then(response => {
             setPersons(persons.map(person => person.id !== id ? person : response.data))
+            setMessage(`Modified ${newName}`);
+          })
+          .catch((error) => {
+            setErrorMessage(`Error modifying ${newName}`)
           })
       }
     } else {
@@ -42,6 +50,10 @@ const App = () => {
         .create(personObject)
         .then(response => {
           setPersons(persons.concat(response.data))
+          setMessage(`Added ${newName}`)
+        })
+        .catch((error) => {
+          setErrorMessage(`Error adding ${newName}`)
         })
     }
     
@@ -56,6 +68,10 @@ const App = () => {
           .deleteObject(id)
           .then(response => {
             setPersons(persons.filter(person => person.id !== response.data))
+            setMessage(`Deleted ${name}`)
+          })
+          .catch((error) => {
+            setErrorMessage(`Information of ${name} has already been removed from server`)
           })
       }
     }
@@ -78,7 +94,8 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
-
+      <ErrorMessage message={errorMessage} />
+      <SuccessMessage message={message} />
       <div>filter show with <input value={filter} onChange={handleFilterChange}/></div>
 
       <h2>add a  new</h2>
