@@ -9,9 +9,9 @@ const App = () => {
   const [ newName, setNewName ] = useState('')  
   const [ newNumber, setNewNumber ] = useState('')
   const [ filter, setFilter ] = useState('')
-  const [ notification, setNotification ] = useState('')
+  const [ notification, setNotification ] = useState(null)
 
-  const notifyWith = (message, type='success') => {
+  const notifyWith = (message, type) => {
     setNotification({ message, type })
     setTimeout(() => {
       setNotification(null)
@@ -44,10 +44,10 @@ const App = () => {
           .update(id, { ...person, number: newNumber })
           .then(response => {
             setPersons(persons.map(person => person.id !== id ? person : response.data))
-            notifyWith(`Modified ${newName}`);
+            notifyWith(`Modified ${newName}`, 'success');
           })
-          .catch(() => {
-            notifyWith(`Error modifying ${newName}`, 'error')
+          .catch((error) => {
+            notifyWith(`${error.response.data.error}`, 'error')
           })
       }
     } else {
@@ -55,10 +55,10 @@ const App = () => {
         .create(personObject)
         .then(response => {
           setPersons(persons.concat(response.data))
-          notifyWith(`Added ${newName}`)
+          notifyWith(`Added ${newName}`, 'success')
         })
-        .catch(() => {
-          notifyWith(`Error adding ${newName}`, 'error')
+        .catch((error) => {
+          notifyWith(`${error.response.data.error}`, 'error')
         })
     }
     
@@ -73,7 +73,7 @@ const App = () => {
           .deleteObject(id)
           .then(response => {
             setPersons(persons.filter(person => person.id !== response.data))
-            notifyWith(`Deleted ${name}`)
+            notifyWith(`Deleted ${name}`, 'success')
           })
           .catch((error) => {
             notifyWith(`Information of ${name} has already been removed from server`, 'error')
