@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Person from './components/Person'
-import ErrorMessage from './components/ErrorMessage'
-import SuccessMessage from './components/SuccessMessage'
+import Notification from './components/Notification'
 import personService from './services/persons'
 
 const App = () => {
@@ -10,8 +9,14 @@ const App = () => {
   const [ newName, setNewName ] = useState('')  
   const [ newNumber, setNewNumber ] = useState('')
   const [ filter, setFilter ] = useState('')
-  const [ message, setMessage ] = useState('')
-  const [ errorMessage, setErrorMessage ] = useState('')
+  const [ notification, setNotification ] = useState('')
+
+  const notifyWith = (message, type='success') => {
+    setNotification({ message, type })
+    setTimeout(() => {
+      setNotification(null)
+    }, 5000)
+  }
 
   useEffect(() => {
     personService
@@ -39,10 +44,10 @@ const App = () => {
           .update(id, { ...person, number: newNumber })
           .then(response => {
             setPersons(persons.map(person => person.id !== id ? person : response.data))
-            setMessage(`Modified ${newName}`);
+            notifyWith(`Modified ${newName}`);
           })
-          .catch((error) => {
-            setErrorMessage(`Error modifying ${newName}`)
+          .catch(() => {
+            notifyWith(`Error modifying ${newName}`, 'error')
           })
       }
     } else {
@@ -50,10 +55,10 @@ const App = () => {
         .create(personObject)
         .then(response => {
           setPersons(persons.concat(response.data))
-          setMessage(`Added ${newName}`)
+          notifyWith(`Added ${newName}`)
         })
-        .catch((error) => {
-          setErrorMessage(`Error adding ${newName}`)
+        .catch(() => {
+          notifyWith(`Error adding ${newName}`, 'error')
         })
     }
     
@@ -68,10 +73,10 @@ const App = () => {
           .deleteObject(id)
           .then(response => {
             setPersons(persons.filter(person => person.id !== response.data))
-            setMessage(`Deleted ${name}`)
+            notifyWith(`Deleted ${name}`)
           })
           .catch((error) => {
-            setErrorMessage(`Information of ${name} has already been removed from server`)
+            notifyWith(`Information of ${name} has already been removed from server`, 'error')
           })
       }
     }
@@ -94,8 +99,7 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
-      <ErrorMessage message={errorMessage} />
-      <SuccessMessage message={message} />
+      <Notification notification={notification} />
       <div>filter show with <input value={filter} onChange={handleFilterChange}/></div>
 
       <h2>add a  new</h2>
