@@ -31,11 +31,11 @@ beforeEach(async () => {
 
 test('verify correct number of blogs', async () => {
   const response = await api
-    .get('/api/blogs')
+    .get('/api/blogs/api/blogs')
     .expect(200)
     .expect('Content-Type',/application\/json/)
     
-  expect(response.body).toHaveLength(initialBlogPosts.length + 1)
+  expect(response.body).toHaveLength(initialBlogPosts.length)
 })
 
 afterAll(() => {
